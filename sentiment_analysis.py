@@ -14,12 +14,14 @@ emotion_labels = [
 ]
 
 def analyze_sentiment_using_bert(text, threshold=0.3):
+def analyze_sentiment_using_bert(text, threshold=0.3):
     sentences = re.split(r'(?<=[.!?])\s+', text)
     emotions_by_sentence = []
 
     for sentence in sentences:
         if not sentence.strip():
             continue
+
 
         inputs = tokenizer(sentence, return_tensors="pt", truncation=True, padding=True, max_length=512)
         with torch.no_grad():
@@ -37,6 +39,7 @@ def analyze_sentiment_using_bert(text, threshold=0.3):
             "text": sentence,
             "emotions": detected_emotions if detected_emotions else ["neutral"]
         })
+
 
     return emotions_by_sentence
 

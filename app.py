@@ -1,183 +1,178 @@
-# app.py
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session,  send_from_directory
-from datetime import datetime, timedelta
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 import os
-import re
-from collections import Counter
+from datetime import datetime, timedelta
+import uuid
 from sentiment_analysis import analyze_sentiment_using_bert
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"  # Change this in production
 
-# Define emotion scores (higher is more positive)
+DATA_FILE = 'journal_data.json'
+
+# Emotion score mapping (higher is better)
 EMOTION_SCORES = {
-    "joy": 10,
-    "love": 9.5,
-    "admiration": 9,
-    "gratitude": 8.5,
-    "excitement": 8,
-    "amusement": 7.5,
-    "optimism": 7,
-    "pride": 6.5,
-    "relief": 6,
-    "realization": 5.5,
-    "approval": 5,
-    "caring": 4.5,
-    "surprise": 4,
-    "curiosity": 3.5,
-    "desire": 3,
-    "confusion": 2.5,
-    "nervousness": 2,
-    "embarrassment": 1.5,
-    "remorse": 1,
-    "disapproval": 0.5,
-    "grief": 0,
-    "sadness": -0.5,
-    "disappointment": -1,
-    "annoyance": -1.5,
-    "disgust": -2,
-    "anger": -2.5
+    'love': 3, 'joy': 3, 'happiness': 3, 'excitement': 3, 'optimism': 3, 'pride': 3, 'gratitude': 3,
+    'amusement': 2, 'admiration': 2, 'approval': 2, 'caring': 2, 'curiosity': 2, 'realization': 2, 'relief': 2, 'surprise': 2,
+    'neutral': 1, 'desire': 1, 'nervousness': 1, 'confusion': 1,
+    'disappointment': 0, 'sadness': 0, 'grief': 0, 'fear': 0, 'remorse': 0, 'anger': 0, 'annoyance': 0, 
+    'disapproval': 0, 'disgust': 0, 'embarrassment': 0
 }
 
-# Simple sentiment analysis function
-def analyze_sentiment(text):
-    # Split text into sentences
-    sentences = re.split(r'(?<=[.!?])\s+', text)
-    emotions_by_sentence = analyze_sentiment_using_bert(text)
-    
-    # Get overall emotion
-    all_emotions = [s["emotions"][0] for s in emotions_by_sentence if s["emotions"][0] != "neutral"]
-    most_common = Counter(all_emotions).most_common(1)
-    overall_emotion = most_common[0][0] if most_common else "neutral"
-    
-    return {
-        "overall_emotion": overall_emotion,
-        "sentences": emotions_by_sentence
-    }
+# Context processor for templates
+@app.context_processor
+def inject_now():
+    return {'now': datetime.now()}
 
-# Ensure data directory exists
-DATA_DIR = "data"
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)
+def load_journal_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r') as f:
+            return json.load(f)
+    return []
 
-def get_user_data_path(user_id="default"):
-    """Get path to user data file"""
-    return os.path.join(DATA_DIR, f"{user_id}_entries.json")
+def save_journal_data(data):
+    with open(DATA_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def save_entry(entry, user_id="default"):
-    """Save a journal entry to file"""
-    file_path = get_user_data_path(user_id)
+def get_dominant_emotion(emotions_list):
+    if not emotions_list:
+        return "neutral"
     
-    # Load existing entries
-    entries = []
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
-            entries = json.load(f)
+    # Flatten the list of emotions from all sentences
+    all_emotions = []
+    for item in emotions_list:
+        all_emotions.extend(item['emotions'])
     
-    # Add new entry
-    entries.append(entry)
+    # Count occurrences of each emotion
+    emotion_counts = {}
+    for emotion in all_emotions:
+        if emotion in emotion_counts:
+            emotion_counts[emotion] += 1
+        else:
+            emotion_counts[emotion] = 1
     
-    # Save updated entries
-    with open(file_path, 'w') as f:
-        json.dump(entries, f, indent=2)
+    # Find the most common emotion
+    if emotion_counts:
+        dominant_emotion = max(emotion_counts.items(), key=lambda x: x[1])[0]
+        return dominant_emotion
+    
+    return "neutral"
 
-def load_entries(user_id="default"):
-    """Load all journal entries for a user"""
-    file_path = get_user_data_path(user_id)
+def get_emotion_score(emotion):
+    return EMOTION_SCORES.get(emotion, 1)  # Default to 1 if emotion not found
+
+def get_week_start_date(date_str=None):
+    if date_str:
+        date = datetime.strptime(date_str, "%Y-%m-%d")
+    else:
+        date = datetime.now()
     
-    if not os.path.exists(file_path):
+    # Find the start of the week (Monday)
+    start_of_week = date - timedelta(days=date.weekday())
+    return start_of_week.strftime("%Y-%m-%d")
+
+def get_week_data(start_date):
+    data = load_journal_data()
+    
+    # Initialize the week with empty data
+    week_start = datetime.strptime(start_date, "%Y-%m-%d")
+    week_data = {}
+    
+    for i in range(7):
+        day = week_start + timedelta(days=i)
+        day_str = day.strftime("%Y-%m-%d")
+        week_data[day_str] = {
+            "day_name": day.strftime("%a"),
+            "date": day_str,
+            "entry": None,
+            "dominant_emotion": None,
+            "score": 0
+        }
+    
+    # Fill in data for days that have entries
+    for entry in data:
+        entry_date = entry["date"]
+        if entry_date in week_data:
+            week_data[entry_date]["entry"] = entry["text"]
+            week_data[entry_date]["dominant_emotion"] = entry["dominant_emotion"]
+            week_data[entry_date]["score"] = entry["score"]
+    
+    return list(week_data.values())
+
+def get_all_week_start_dates():
+    data = load_journal_data()
+    if not data:
         return []
     
-    with open(file_path, 'r') as f:
-        return json.load(f)
+    dates = [datetime.strptime(entry["date"], "%Y-%m-%d") for entry in data]
+    
+    # Find unique week start dates
+    week_starts = set()
+    for date in dates:
+        week_start = date - timedelta(days=date.weekday())
+        week_starts.add(week_start.strftime("%Y-%m-%d"))
+    
+    return sorted(list(week_starts), reverse=True)
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def home():
+    return render_template('home.html')
 
 @app.route('/journal', methods=['GET', 'POST'])
 def journal():
     if request.method == 'POST':
-        text = request.form.get('entry', '')
-        tags = request.form.get('tags', '').split(',')
-        tags = [tag.strip() for tag in tags if tag.strip()]
+        text = request.form.get('journal_text', '')
         
-        # Analyze sentiment
-        analysis = analyze_sentiment(text)
+        if text.strip():
+            # Analyze sentiment
+            emotions_data = analyze_sentiment_using_bert(text)
+            dominant_emotion = get_dominant_emotion(emotions_data)
+            score = get_emotion_score(dominant_emotion)
+            
+            # Save journal entry
+            data = load_journal_data()
+            entry = {
+                "id": str(uuid.uuid4()),
+                "text": text,
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "emotions_data": emotions_data,
+                "dominant_emotion": dominant_emotion,
+                "score": score
+            }
+            data.append(entry)
+            save_journal_data(data)
+            
+            # Redirect to timeline view
+            return redirect(url_for('timeline'))
         
-        # Create entry object
-        entry = {
-            "id": datetime.now().strftime("%Y%m%d%H%M%S"),
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "time": datetime.now().strftime("%H:%M:%S"),
-            "text": text,
-            "tags": tags,
-            "analysis": analysis
-        }
-        
-        # Save entry
-        save_entry(entry)
-        
-        return redirect(url_for('timeline'))
-        
-    return render_template('journal.html', now=datetime.now())
+    return render_template('journal.html')
 
 @app.route('/timeline')
-def timeline():
-    return render_template('timeline.html')
-
-@app.route('/api/entries')
-def api_entries():
-    entries = load_entries()
-    return jsonify(entries)
-
-@app.route('/api/week_data')
-def api_week_data():
-    year = int(request.args.get('year', datetime.now().year))
-    week = int(request.args.get('week', datetime.now().isocalendar()[1]))
+@app.route('/timeline/<start_date>')
+def timeline(start_date=None):
+    if start_date is None:
+        start_date = get_week_start_date()
     
-    # Calculate start and end dates for the week
-    start_date = datetime.strptime(f'{year}-W{week}-1', '%Y-W%W-%w').date()
-    end_date = start_date + timedelta(days=6)
+    week_data = get_week_data(start_date)
+    all_weeks = get_all_week_start_dates()
     
-    # Format as strings for comparison
-    start_str = start_date.strftime('%Y-%m-%d')
-    end_str = end_date.strftime('%Y-%m-%d')
+    # Check if there's any data
+    has_entries = any(day["entry"] for day in week_data)
     
-    # Get all entries
-    all_entries = load_entries()
+    # Find previous and next weeks
+    current_week_index = all_weeks.index(start_date) if start_date in all_weeks else -1
+    prev_week = all_weeks[current_week_index + 1] if current_week_index < len(all_weeks) - 1 else None
+    next_week = all_weeks[current_week_index - 1] if current_week_index > 0 else None
     
-    # Filter entries for the specified week
-    week_entries = [entry for entry in all_entries if start_str <= entry["date"] <= end_str]
-    
-    # Group by day
-    days_data = {}
-    for i in range(7):
-        day_date = (start_date + timedelta(days=i)).strftime('%Y-%m-%d')
-        day_entries = [entry for entry in week_entries if entry["date"] == day_date]
-        
-        # Calculate dominant emotion for the day
-        emotions = []
-        for entry in day_entries:
-            emotions.append(entry["analysis"]["overall_emotion"])
-        
-        most_common = Counter(emotions).most_common(1)
-        dominant_emotion = most_common[0][0] if most_common else "neutral"
-        emotion_score = EMOTION_SCORES.get(dominant_emotion, 0)
-        
-        days_data[day_date] = {
-            "date": day_date,
-            "emotion": dominant_emotion,
-            "score": emotion_score,
-            "entries": day_entries
-        }
-    
-    return jsonify({
-        "start_date": start_str,
-        "end_date": end_str,
-        "days": days_data
-    })
+    return render_template(
+        'timeline.html', 
+        week_data=week_data, 
+        all_weeks=all_weeks,
+        current_week=start_date,
+        prev_week=prev_week,
+        next_week=next_week,
+        has_entries=has_entries
+    )
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) 

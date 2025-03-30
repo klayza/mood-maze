@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Mood Maze{% endblock %}
+
+{% block head %}
+<style>
+    .hero {
+        height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-content {
+        z-index: 10;
+        max-width: 800px;
+        padding: 0 20px;
+    }
+    
+    .hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .hero p {
+        font-size: 1.4rem;
+        margin-bottom: 2rem;
+        font-weight: 300;
+    }
+    
+    .cta-button {
+        display: inline-block;
+        background-color: #fff;
+        color: #6c5ce7;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .cta-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .mood-shapes {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .shape {
+        position: absolute;
+        opacity: 0.15;
+        border-radius: 50%;
+    }
+    
+    .shape-1 {
+        width: 400px;
+        height: 400px;
+        background: #ffb8b8;
+        top: -100px;
+        left: -100px;
+    }
+    
+    .shape-2 {
+        width: 300px;
+        height: 300px;
+        background: #b8d8ff;
+        bottom: -50px;
+        right: -50px;
+    }
+    
+    .shape-3 {
+        width: 200px;
+        height: 200px;
+        background: #ffe0b8;
+        top: 20%;
+        right: 10%;
+    }
+    
+    .shape-4 {
+        width: 150px;
+        height: 150px;
+        background: #d9b8ff;
+        bottom: 20%;
+        left: 10%;
+    }
+    
+    .features {
+        padding: 5rem 2rem;
+        background-color: #f9f9f9;
+    }
+    
+    .features-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 3rem;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #6c5ce7;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #2d3436;
+    }
+    
+    .feature-card p {
+        color: #636e72;
+        line-height: 1.6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="mood-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+    <div class="hero-content">
+        <h1>Welcome to Mood Maze</h1>
+        <p>Explore the journey of your emotions and discover patterns in your daily life.</p>
+        <a href="{{ url_for('journal') }}" class="cta-button">Start Journaling</a>
+    </div>
+</section>
+
+<section class="features">
+    <div class="features-container">
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Expressive Journaling</h3>
+            <p>Write freely about your day in a clean, distraction-free environment designed for reflection.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🧠</div>
+            <h3>Emotion Analysis</h3>
+            <p>Our AI analyzes your entries to identify emotions and provide insights into your emotional patterns.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Visual Timeline</h3>
+            <p>See your emotional journey visualized in a weekly timeline, making it easy to track your mood over time.</p>
+        </div>
+    </div>
+</section>
+{% endblock %} 

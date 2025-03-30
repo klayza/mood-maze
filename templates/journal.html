@@ -1,36 +1,130 @@
-<!-- templates/journal.html -->
-{% extends "layout.html" %} {% block content %}
-<div class="journal-container">
-	<h1>Today's Journal</h1>
-	<p class="date">{{ now.strftime('%A, %B %d, %Y') }}</p>
+{% extends "base.html" %}
 
-	<form action="{{ url_for('journal') }}" method="post" class="journal-form">
-		<div class="form-group">
-			<label for="entry">How was your day?</label>
-			<textarea
-				name="entry"
-				id="entry"
-				rows="10"
-				placeholder="Write about your day..."
-				required
-			></textarea>
-		</div>
+{% block title %}Journal Your Day | Mood Maze{% endblock %}
 
-		<div class="form-group">
-			<label for="tags">Tags (comma separated)</label>
-			<input type="text" name="tags" id="tags" placeholder="work, family, health..." />
-		</div>
-
-		<button type="submit" class="btn primary">Save Entry</button>
-	</form>
-</div>
-{% endblock %} {% block scripts %}
-<script>
-	// Set the current date
-	document.addEventListener('DOMContentLoaded', function () {
-		const now = new Date()
-		const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-		document.querySelector('.date').textContent = now.toLocaleDateString('en-US', options)
-	})
-</script>
+{% block head %}
+<style>
+    .journal-container {
+        max-width: 900px;
+        margin: 3rem auto;
+        padding: 0 20px;
+    }
+    
+    .journal-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .journal-header h1 {
+        font-size: 2.5rem;
+        color: #2d3436;
+        margin-bottom: 0.5rem;
+    }
+    
+    .journal-header p {
+        color: #636e72;
+        font-size: 1.1rem;
+    }
+    
+    .journal-form {
+        width: 100%;
+    }
+    
+    .journal-textarea {
+        width: 100%;
+        height: 350px;
+        padding: 1.5rem;
+        font-size: 18px;
+        font-family: 'Poppins', sans-serif;
+        border: 1px solid #e1e1e1;
+        border-radius: 8px;
+        resize: vertical;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    
+    .journal-textarea:focus {
+        outline: none;
+        border-color: #6c5ce7;
+        box-shadow: 0 2px 15px rgba(108, 92, 231, 0.1);
+    }
+    
+    .journal-submit {
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .submit-btn {
+        background-color: #dfe6e9;
+        color: #636e72;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        opacity: 0.7;
+    }
+    
+    .submit-btn.active {
+        background-color: #6c5ce7;
+        color: white;
+        opacity: 1;
+    }
+    
+    .submit-btn.active:hover {
+        background-color: #5b4ecc;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(108, 92, 231, 0.2);
+    }
+</style>
 {% endblock %}
+
+{% block content %}
+<div class="journal-container">
+    <div class="journal-header">
+        <h1>Journal Your Day</h1>
+        <p>Write about your experiences, thoughts, and feelings.</p>
+    </div>
+    
+    <form method="POST" class="journal-form">
+        <textarea 
+            name="journal_text" 
+            id="journal-textarea" 
+            class="journal-textarea" 
+            placeholder="How was your day today?"
+            required
+        ></textarea>
+        
+        <div class="journal-submit">
+            <button type="submit" id="submit-btn" class="submit-btn">Submit</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('journal-textarea');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        // Check if there's already content in the textarea
+        checkTextareaContent();
+        
+        // Add event listener for textarea changes
+        textarea.addEventListener('input', checkTextareaContent);
+        
+        function checkTextareaContent() {
+            if (textarea.value.trim().length > 0) {
+                submitBtn.classList.add('active');
+            } else {
+                submitBtn.classList.remove('active');
+            }
+        }
+    });
+</script>
+{% endblock %} 

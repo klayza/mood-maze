@@ -14,7 +14,6 @@ emotion_labels = [
 ]
 
 def analyze_sentiment_using_bert(text, threshold=0.3):
-def analyze_sentiment_using_bert(text, threshold=0.3):
     sentences = re.split(r'(?<=[.!?])\s+', text)
     emotions_by_sentence = []
 
@@ -45,4 +44,5 @@ def analyze_sentiment_using_bert(text, threshold=0.3):
 
 
 if __name__ == "__main__":
-    print(analyze_sentiment_using_bert("I got a raise!"))
+    print(analyze_sentiment_using_bert("I got a raise! I am now at a loss for words"))
+    

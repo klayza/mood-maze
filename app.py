@@ -1,10 +1,11 @@
 # app.py
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session,  send_from_directory
 from datetime import datetime, timedelta
 import json
 import os
 import re
 from collections import Counter
+from sentiment_analysis import analyze_sentiment_using_bert
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"  # Change this in production
@@ -43,58 +44,7 @@ EMOTION_SCORES = {
 def analyze_sentiment(text):
     # Split text into sentences
     sentences = re.split(r'(?<=[.!?])\s+', text)
-    emotions_by_sentence = []
-    
-    # Example emotion patterns - in a real app, you'd use a proper NLP model
-    emotion_patterns = {
-        "joy": ["happy", "joy", "joyful", "pleased", "delighted"],
-        "anger": ["angry", "fury", "outraged", "mad"],
-        "sadness": ["sad", "unhappy", "depressed", "down"],
-        "fear": ["afraid", "scared", "terrified", "fearful"],
-        "love": ["love", "adore", "cherish"],
-        "surprise": ["surprised", "shocked", "amazed"],
-        "disgust": ["disgusted", "revolted", "gross"],
-        "confusion": ["confused", "puzzled", "perplexed"],
-        "gratitude": ["thankful", "grateful", "appreciate"],
-        "admiration": ["admire", "impressed", "respect"],
-        "amusement": ["amused", "entertained", "funny", "laughed"],
-        "annoyance": ["annoyed", "irritated", "bothered"],
-        "approval": ["approve", "agree", "good job"],
-        "caring": ["care", "concerned", "worried about"],
-        "curiosity": ["curious", "wonder", "interested"],
-        "desire": ["want", "wish", "hope for", "desire"],
-        "disappointment": ["disappointed", "letdown", "dissatisfied"],
-        "disapproval": ["disapprove", "dislike", "not good"],
-        "embarrassment": ["embarrassed", "humiliated", "ashamed"],
-        "excitement": ["excited", "thrilled", "eager"],
-        "grief": ["grief", "mourning", "devastated"],
-        "nervousness": ["nervous", "anxious", "worried"],
-        "optimism": ["optimistic", "hopeful", "looking forward"],
-        "pride": ["proud", "accomplished", "achievement"],
-        "realization": ["realized", "understood", "recognized"],
-        "relief": ["relieved", "reassured", "calmed"],
-        "remorse": ["remorse", "regret", "sorry"],
-    }
-    
-    # Analyze each sentence
-    for i, sentence in enumerate(sentences):
-        if not sentence.strip():
-            continue
-            
-        sentence_emotions = {}
-        for emotion, keywords in emotion_patterns.items():
-            sentence_lower = sentence.lower()
-            count = sum(1 for keyword in keywords if keyword in sentence_lower)
-            if count > 0:
-                sentence_emotions[emotion] = count
-        
-        # Default to "neutral" if no emotions detected
-        detected_emotion = max(sentence_emotions.items(), key=lambda x: x[1])[0] if sentence_emotions else "neutral"
-        
-        emotions_by_sentence.append({
-            "text": sentence,
-            "emotion": detected_emotion
-        })
+    emotions_by_sentence = analyze_sentiment_using_bert(text)
     
     # Get overall emotion
     all_emotions = [s["emotion"] for s in emotions_by_sentence if s["emotion"] != "neutral"]

@@ -34,6 +34,8 @@ def save_journal_data(data):
         json.dump(data, f, indent=2)
 
 def get_dominant_emotion(emotions_list):
+    #TODO: sometimes there are emotion lists that have neutral with another non-neutral emotion, when this
+    # is the case, remove the neutral. ex: ['neutral', 'happy'] -> ['happy']
     if not emotions_list:
         return "neutral"
     
@@ -72,30 +74,35 @@ def get_week_start_date(date_str=None):
 
 def get_week_data(start_date):
     data = load_journal_data()
-    
     # Initialize the week with empty data
     week_start = datetime.strptime(start_date, "%Y-%m-%d")
     week_data = {}
-    
+   
     for i in range(7):
         day = week_start + timedelta(days=i)
         day_str = day.strftime("%Y-%m-%d")
         week_data[day_str] = {
             "day_name": day.strftime("%a"),
             "date": day_str,
-            "entry": None,
+            "entries": [],  # Start with an empty list instead of None
             "dominant_emotion": None,
             "score": 0
         }
-    
+   
     # Fill in data for days that have entries
     for entry in data:
         entry_date = entry["date"]
         if entry_date in week_data:
-            week_data[entry_date]["entry"] = entry["text"]
+            # Append the entry text to the entries list
+            week_data[entry_date]["entries"].append(entry)
+            
+            # For dominant_emotion and score, you might want to:
+            # 1. Use the most recent entry's values
+            # 2. Or calculate an aggregate (most common emotion, average score)
+            # This implementation uses the latest entry's values
             week_data[entry_date]["dominant_emotion"] = entry["dominant_emotion"]
             week_data[entry_date]["score"] = entry["score"]
-    
+   
     return list(week_data.values())
 
 def get_all_week_start_dates():
@@ -112,6 +119,34 @@ def get_all_week_start_dates():
         week_starts.add(week_start.strftime("%Y-%m-%d"))
     
     return sorted(list(week_starts), reverse=True)
+
+
+def get_week_number(date_str):
+    """
+    Calculate the ISO week number from a date string in 'YYYY-MM-DD' format.
+    
+    Args:
+        date_str (str): Date string in 'YYYY-MM-DD' format
+        
+    Returns:
+        int: ISO week number (1-53)
+    """
+    if isinstance(date_str, str):
+        # Parse the date string to a datetime object
+        try:
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            # Return None if date format is invalid
+            return None
+    elif isinstance(date_str, (datetime, date)):
+        date_obj = date_str.date() if isinstance(date_str, datetime) else date_str
+    else:
+        # Return None for unsupported types
+        return None
+        
+    # Calculate the ISO week number
+    return date_obj.isocalendar()[1]
+
 
 @app.route('/')
 def home():
@@ -157,13 +192,13 @@ def timeline(start_date=None):
     all_weeks = get_all_week_start_dates()
     
     # Check if there's any data
-    has_entries = any(day["entry"] for day in week_data)
+    has_entries = any(day["entries"] for day in week_data)
     
     # Find previous and next weeks
     current_week_index = all_weeks.index(start_date) if start_date in all_weeks else -1
     prev_week = all_weeks[current_week_index + 1] if current_week_index < len(all_weeks) - 1 else None
     next_week = all_weeks[current_week_index - 1] if current_week_index > 0 else None
-    
+    print(week_data)
     return render_template(
         'timeline.html', 
         week_data=week_data, 
@@ -171,7 +206,7 @@ def timeline(start_date=None):
         current_week=start_date,
         prev_week=prev_week,
         next_week=next_week,
-        has_entries=has_entries
+        has_entries=has_entries,
     )
 
 if __name__ == '__main__':

@@ -9,26 +9,26 @@
         margin: 3rem auto;
         padding: 0 20px;
     }
-    
+
     .timeline-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
     }
-    
+
     .week-title {
         font-size: 1.5rem;
         color: #2d3436;
         font-weight: 600;
     }
-    
+
     .week-navigation {
         display: flex;
         align-items: center;
         gap: 1rem;
     }
-    
+
     .week-selector {
         padding: 8px 15px;
         border: 1px solid #e1e1e1;
@@ -37,7 +37,7 @@
         font-size: 0.9rem;
         background-color: white;
     }
-    
+
     .week-nav-btn {
         background: none;
         border: none;
@@ -48,22 +48,22 @@
         border-radius: 5px;
         transition: background-color 0.3s ease;
     }
-    
+
     .week-nav-btn:hover {
         background-color: #f0f0f0;
     }
-    
+
     .week-nav-btn:disabled {
         color: #b2b2b2;
         cursor: not-allowed;
     }
-    
+
     .chart-container {
         height: 500px;
         position: relative;
         margin-top: 2rem;
     }
-    
+
     .chart {
         display: flex;
         height: 70%;
@@ -72,15 +72,16 @@
         padding-bottom: 50px;
         position: relative;
     }
-    
+
     .chart-column {
         flex: 1;
         display: flex;
         flex-direction: column;
         align-items: center;
         position: relative;
+        height: 100%; /* Add this line */
     }
-    
+
     .bar {
         width: 100%;
         background-color: #6c5ce7;
@@ -88,12 +89,13 @@
         transition: height 0.5s ease;
         position: relative;
         cursor: pointer;
+        height: 0; /* Add this initial height */
     }
-    
+
     .bar:hover {
         opacity: 0.9;
     }
-    
+
     .emotion-label {
         position: absolute;
         top: -25px;
@@ -102,13 +104,13 @@
         width: 100%;
         color: #2d3436;
     }
-    
+
     .day-label {
         margin-top: 10px;
         font-size: 0.9rem;
         color: #636e72;
     }
-    
+
     .empty-state {
         display: flex;
         flex-direction: column;
@@ -120,24 +122,24 @@
         border-radius: 10px;
         padding: 2rem;
     }
-    
+
     .empty-state-icon {
         font-size: 3rem;
         margin-bottom: 1rem;
         color: #b2bec3;
     }
-    
+
     .empty-state h3 {
         font-size: 1.5rem;
         color: #2d3436;
         margin-bottom: 0.5rem;
     }
-    
+
     .empty-state p {
         color: #636e72;
         margin-bottom: 1.5rem;
     }
-    
+
     .empty-state-btn {
         display: inline-block;
         background-color: #6c5ce7;
@@ -148,45 +150,103 @@
         font-weight: 500;
         transition: all 0.3s ease;
     }
-    
+
     .empty-state-btn:hover {
         background-color: #5b4ecc;
         transform: translateY(-2px);
     }
-    
+
     /* Emotion colors */
     .score-3 {
         background-color: #8bc34a;
     }
-    
+
     .score-2 {
         background-color: #03a9f4;
     }
-    
+
     .score-1 {
         background-color: #9e9e9e;
     }
-    
+
     .score-0 {
         background-color: #f44336;
     }
     
-    /* Tooltip styles */
-    .tooltip {
-        position: absolute;
-        background-color: rgba(0, 0, 0, 0.8);
+    /* Dialog styling */
+    dialog {
+        padding: 0;
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        width: 90%;
+        max-width: 500px;
+    }
+    
+    dialog::backdrop {
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .dialog-header {
+        background-color: #6c5ce7;
         color: white;
-        padding: 10px;
-        border-radius: 5px;
-        font-size: 0.85rem;
-        z-index: 100;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.3s;
-        max-width: 250px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        padding: 15px 20px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .dialog-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+    
+    .dialog-content {
+        padding: 20px;
+    }
+    
+    .close-dialog {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 5px;
+    }
+    
+    .entry-card {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-left: 4px solid #6c5ce7;
+    }
+    
+    .entry-time {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    
+    .entry-text {
+        color: #2d3436;
+        line-height: 1.5;
+    }
+    
+    .entry-emotions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+    
+    .emotion-tag {
+        background-color: #e0e0e0;
+        color: #636e72;
+        font-size: 0.8rem;
+        padding: 3px 8px;
+        border-radius: 12px;
     }
 </style>
 {% endblock %}
@@ -195,133 +255,151 @@
 <div class="timeline-container">
     <div class="timeline-header">
         <h2 class="week-title">Week of {{ current_week }}</h2>
-        
+
         <div class="week-navigation">
-            <button 
-                class="week-nav-btn" 
-                id="prev-week-btn" 
-                title="Previous week"
-                {% if not prev_week %}disabled{% endif %}
-            >
+            <button class="week-nav-btn" id="prev-week-btn" title="Previous week" {% if not prev_week %}disabled{% endif
+                %}>
                 ←
             </button>
-            
+
             <select id="week-selector" class="week-selector" {% if not all_weeks %}disabled{% endif %}>
                 {% for week in all_weeks %}
-                    <option value="{{ week }}" {% if week == current_week %}selected{% endif %}>
-                        Week of {{ week }}
-                    </option>
+                <option value="{{ week }}" {% if week==current_week %}selected{% endif %}>
+                    Week of {{ week }}
+                </option>
                 {% endfor %}
             </select>
-            
-            <button 
-                class="week-nav-btn" 
-                id="next-week-btn" 
-                title="Next week"
-                {% if not next_week %}disabled{% endif %}
-            >
+
+            <button class="week-nav-btn" id="next-week-btn" title="Next week" {% if not next_week %}disabled{% endif %}>
                 →
             </button>
         </div>
     </div>
-    
+
     {% if all_weeks|length == 0 %}
-        <div class="empty-state">
-            <div class="empty-state-icon">📝</div>
-            <h3>No Journal Entries Yet</h3>
-            <p>Start journaling to see your emotional timeline</p>
-            <a href="{{ url_for('journal') }}" class="empty-state-btn">Create First Entry</a>
-        </div>
+    <div class="empty-state">
+        <div class="empty-state-icon">📝</div>
+        <h3>No Journal Entries Yet</h3>
+        <p>Start journaling to see your emotional timeline</p>
+        <a href="{{ url_for('journal') }}" class="empty-state-btn">Create First Entry</a>
+    </div>
     {% elif not has_entries %}
-        <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
-            <h3>No Entries This Week</h3>
-            <p>Add a journal entry for this week to see your timeline</p>
-            <a href="{{ url_for('journal') }}" class="empty-state-btn">Add Entry</a>
-        </div>
+    <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <h3>No Entries This Week</h3>
+        <p>Add a journal entry for this week to see your timeline</p>
+        <a href="{{ url_for('journal') }}" class="empty-state-btn">Add Entry</a>
+    </div>
     {% else %}
-        <div class="chart-container">
-            <div class="chart" id="emotion-chart">
-                {% for day in week_data %}
-                    <div class="chart-column">
-                        <div 
-                            class="bar score-{{ day.score }}" 
-                            data-height="{{ day.score * 25 }}%" 
-                            data-day="{{ day.day_name }}" 
-                            data-date="{{ day.date }}" 
-                            data-emotion="{{ day.dominant_emotion }}" 
-                            data-entry="{{ day.entry }}"
-                            title="{{ day.day_name }} - {{ day.dominant_emotion|capitalize if day.dominant_emotion }}"
-                        >
-                            {% if day.dominant_emotion %}
-                                <div class="emotion-label">{{ day.dominant_emotion|capitalize }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="day-label">{{ day.day_name }}</div>
-                    </div>
-                {% endfor %}
+    <div class="chart-container">
+        <div class="chart" id="emotion-chart">
+            {% for day in week_data %}
+            <div class="chart-column">
+                <div class="bar score-{{ day.score }}" data-height="{{ day.score * 25 }}%" data-day="{{ day.day_name }}"
+                    data-date="{{ day.date }}" data-emotion="{{ day.dominant_emotion }}" data-entry="{{ day.entry }}"
+                    title="{{ day.day_name }} - {{ day.dominant_emotion|capitalize if day.dominant_emotion }}"
+                    onclick="openDayDialog('dialog-{{ day.date }}')">
+                    {% if day.dominant_emotion %}
+                    <div class="emotion-label">{{ day.dominant_emotion|capitalize }}</div>
+                    {% endif %}
+                </div>
+                <div class="day-label">{{ day.day_name }}</div>
             </div>
-            <div class="tooltip" id="tooltip"></div>
+            {% endfor %}
         </div>
+    </div>
+    
+    {% for day in week_data %}
+    <dialog id="dialog-{{ day.date }}">
+        <div class="dialog-header">
+            <h3>{{ day.day_name }} - {{ day.date }}</h3>
+            <button class="close-dialog" onclick="closeDialog('dialog-{{ day.date }}')">&times;</button>
+        </div>
+        <div class="dialog-content">
+            {% if day.entries %}
+                {% for entry in day.entries %}
+                <div class="entry-card">
+                    <div class="entry-time">{{ entry.timestamp.split(' ')[1] }}</div>
+                    <div class="entry-text">{{ entry.text }}</div>
+                    <div class="entry-emotions">
+                        {% for emotion_data in entry.emotions_data %}
+                            {% for emotion in emotion_data.emotions %}
+                            <span class="emotion-tag">{{ emotion }}</span>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No detailed entries available for this day.</p>
+            {% endif %}
+        </div>
+    </dialog>
+    {% endfor %}
+    
     {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function openDayDialog(dialogId) {
+        const dialog = document.getElementById(dialogId);
+        if (dialog) {
+            dialog.showModal();
+        }
+    }
+    
+    function closeDialog(dialogId) {
+        const dialog = document.getElementById(dialogId);
+        if (dialog) {
+            dialog.close();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
         // Week navigation
         const weekSelector = document.getElementById('week-selector');
         const prevWeekBtn = document.getElementById('prev-week-btn');
         const nextWeekBtn = document.getElementById('next-week-btn');
-        
+
         if (weekSelector) {
-            weekSelector.addEventListener('change', function() {
+            weekSelector.addEventListener('change', function () {
                 window.location.href = '/timeline/' + this.value;
             });
         }
-        
+
         if (prevWeekBtn && !prevWeekBtn.disabled) {
-            prevWeekBtn.addEventListener('click', function() {
+            prevWeekBtn.addEventListener('click', function () {
                 window.location.href = '/timeline/{{ prev_week }}';
             });
         }
-        
+
         if (nextWeekBtn && !nextWeekBtn.disabled) {
-            nextWeekBtn.addEventListener('click', function() {
+            nextWeekBtn.addEventListener('click', function () {
                 window.location.href = '/timeline/{{ next_week }}';
             });
         }
-        
+
         // Chart animation and tooltips
         const bars = document.querySelectorAll('.bar');
-        const tooltip = document.getElementById('tooltip');
-        
+
         bars.forEach(bar => {
             const height = bar.getAttribute('data-height');
             setTimeout(() => {
                 bar.style.height = height;
             }, 100);
-            
-            // Tooltip logic
-            bar.addEventListener('mousemove', function(e) {
-                const emotion = this.getAttribute('data-emotion');
-                const day = this.getAttribute('data-day');
-                const date = this.getAttribute('data-date');
-                const entry = this.getAttribute('data-entry');
-                
-                if (emotion) {
-                    tooltip.textContent = `${day} (${date}): ${emotion}`;
-                    tooltip.style.opacity = '1';
-                    tooltip.style.left = e.pageX + 10 + 'px';
-                    tooltip.style.top = e.pageY + 10 + 'px';
+        });
+        
+        // Close dialog when clicking on backdrop
+        const dialogs = document.querySelectorAll('dialog');
+        dialogs.forEach(dialog => {
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) {
+                    dialog.close();
                 }
-            });
-            
-            bar.addEventListener('mouseleave', function() {
-                tooltip.style.opacity = '0';
             });
         });
     });
 </script>
-{% endblock %} 
+{% endblock %}

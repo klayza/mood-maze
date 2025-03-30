@@ -44,5 +44,5 @@ def analyze_sentiment_using_bert(text, threshold=0.3):
 
 
 if __name__ == "__main__":
-    print(analyze_sentiment_using_bert("I got a raise! I am now at a loss for words"))
+    print(analyze_sentiment_using_bert("Today is stressful, I can't get the code to work. What should I do? Nothing is working."))
     

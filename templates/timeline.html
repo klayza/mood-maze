@@ -69,7 +69,9 @@
         height: 70%;
         gap: 2%;
         align-items: flex-end;
+        /* This makes bars grow upwards from the bottom */
         padding-bottom: 50px;
+        /* Optional: keeps space for labels */
         position: relative;
     }
 
@@ -77,9 +79,12 @@
         flex: 1;
         display: flex;
         flex-direction: column;
+        justify-content: flex-end;
+        /* This aligns the bar at the bottom */
         align-items: center;
         position: relative;
-        height: 100%; /* Add this line */
+        height: 100%;
+        /* Still needed for percentage heights */
     }
 
     .bar {
@@ -89,7 +94,8 @@
         transition: height 0.5s ease;
         position: relative;
         cursor: pointer;
-        height: 0; /* Add this initial height */
+        height: 0;
+        /* Start at 0, will be animated to data-height */
     }
 
     .bar:hover {
@@ -172,21 +178,29 @@
     .score-0 {
         background-color: #f44336;
     }
-    
+
     /* Dialog styling */
     dialog {
         padding: 0;
         border: none;
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         width: 90%;
         max-width: 500px;
+        /* Center the dialog */
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        /* Add max-height and scrolling for content */
+        max-height: 80vh;
     }
-    
+
     dialog::backdrop {
-        background-color: rgba(0,0,0,0.5);
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
     }
-    
+
     .dialog-header {
         background-color: #6c5ce7;
         color: white;
@@ -195,17 +209,20 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
-    
-    .dialog-header h3 {
-        margin: 0;
-        font-size: 1.2rem;
-    }
-    
+
     .dialog-content {
         padding: 20px;
+        background: white;
+        border-radius: 0 0 8px 8px;
+        /* overflow: scroll; */
+        overflow-y: auto;
+
     }
-    
+
     .close-dialog {
         background: none;
         border: none;
@@ -213,8 +230,19 @@
         font-size: 1.5rem;
         cursor: pointer;
         padding: 0 5px;
+        line-height: 1;
     }
-    
+
+    .dialog-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .dialog-content {
+
+    }
+
+
     .entry-card {
         background-color: #f8f9fa;
         border-radius: 6px;
@@ -222,25 +250,25 @@
         margin-bottom: 15px;
         border-left: 4px solid #6c5ce7;
     }
-    
+
     .entry-time {
         color: #7f8c8d;
         font-size: 0.9rem;
         margin-bottom: 8px;
     }
-    
+
     .entry-text {
         color: #2d3436;
         line-height: 1.5;
     }
-    
+
     .entry-emotions {
         display: flex;
         flex-wrap: wrap;
         gap: 5px;
         margin-top: 10px;
     }
-    
+
     .emotion-tag {
         background-color: #e0e0e0;
         color: #636e72;
@@ -308,7 +336,7 @@
             {% endfor %}
         </div>
     </div>
-    
+
     {% for day in week_data %}
     <dialog id="dialog-{{ day.date }}">
         <div class="dialog-header">
@@ -317,26 +345,26 @@
         </div>
         <div class="dialog-content">
             {% if day.entries %}
-                {% for entry in day.entries %}
-                <div class="entry-card">
-                    <div class="entry-time">{{ entry.timestamp.split(' ')[1] }}</div>
-                    <div class="entry-text">{{ entry.text }}</div>
-                    <div class="entry-emotions">
-                        {% for emotion_data in entry.emotions_data %}
-                            {% for emotion in emotion_data.emotions %}
-                            <span class="emotion-tag">{{ emotion }}</span>
-                            {% endfor %}
-                        {% endfor %}
-                    </div>
+            {% for entry in day.entries %}
+            <div class="entry-card">
+                <div class="entry-time">{{ entry.timestamp.split(' ')[1] }}</div>
+                <div class="entry-text">{{ entry.text }}</div>
+                <div class="entry-emotions">
+                    {% for emotion_data in entry.emotions_data %}
+                    {% for emotion in emotion_data.emotions %}
+                    <span class="emotion-tag">{{ emotion }}</span>
+                    {% endfor %}
+                    {% endfor %}
                 </div>
-                {% endfor %}
+            </div>
+            {% endfor %}
             {% else %}
-                <p>No detailed entries available for this day.</p>
+            <p>No detailed entries available for this day.</p>
             {% endif %}
         </div>
     </dialog>
     {% endfor %}
-    
+
     {% endif %}
 </div>
 {% endblock %}
@@ -349,7 +377,7 @@
             dialog.showModal();
         }
     }
-    
+
     function closeDialog(dialogId) {
         const dialog = document.getElementById(dialogId);
         if (dialog) {
@@ -390,7 +418,7 @@
                 bar.style.height = height;
             }, 100);
         });
-        
+
         // Close dialog when clicking on backdrop
         const dialogs = document.querySelectorAll('dialog');
         dialogs.forEach(dialog => {

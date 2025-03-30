@@ -198,7 +198,6 @@ def timeline(start_date=None):
     current_week_index = all_weeks.index(start_date) if start_date in all_weeks else -1
     prev_week = all_weeks[current_week_index + 1] if current_week_index < len(all_weeks) - 1 else None
     next_week = all_weeks[current_week_index - 1] if current_week_index > 0 else None
-    print(week_data)
     return render_template(
         'timeline.html', 
         week_data=week_data, 

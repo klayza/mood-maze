@@ -41,7 +41,10 @@ def analyze_sentiment_using_bert(text, threshold=0.3):
             "sentence": sentence,
             "emotions": detected_emotions
         })
-
+    for result in results:
+        if "neutral" in result["emotions"] and len(result["emotions"]) > 1:
+            result["emotions"].remove("neutral")
+            
     return results
 
 

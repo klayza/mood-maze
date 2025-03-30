@@ -182,7 +182,7 @@
     /* Dialog styling */
     dialog {
         padding: 0;
-        border: none;
+        border: 5px solid rgb(230, 230, 230);
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         width: 90%;
@@ -194,6 +194,8 @@
         transform: translate(-50%, -50%);
         /* Add max-height and scrolling for content */
         max-height: 80vh;
+        overflow-y: hidden;
+        
     }
 
     dialog::backdrop {
@@ -205,7 +207,7 @@
         background-color: #6c5ce7;
         color: white;
         padding: 15px 20px;
-        border-radius: 8px 8px 0 0;
+        /* border-radius: 8px 8px 0 0; */
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -215,12 +217,12 @@
     }
 
     .dialog-content {
+        
         padding: 20px;
         background: white;
         border-radius: 0 0 8px 8px;
         /* overflow: scroll; */
         overflow-y: auto;
-
     }
 
     .close-dialog {
@@ -236,10 +238,6 @@
     .dialog-header h3 {
         margin: 0;
         font-size: 1.2rem;
-    }
-
-    .dialog-content {
-
     }
 
 

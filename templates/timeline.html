@@ -1,0 +1,34 @@
+<!-- templates/timeline.html -->
+{% extends "layout.html" %} {% block content %}
+<div class="timeline-container">
+	<h1>Emotion Timeline</h1>
+
+	<div class="timeline-controls">
+		<button id="prev-week" class="btn"><i class="fas fa-chevron-left"></i></button>
+
+		<div class="week-selector">
+			<select id="week-dropdown">
+				<!-- Will be populated by JavaScript -->
+			</select>
+		</div>
+
+		<button id="next-week" class="btn"><i class="fas fa-chevron-right"></i></button>
+	</div>
+
+	<div class="timeline">
+		<div class="days-container" id="days-container">
+			<!-- Will be populated by JavaScript -->
+		</div>
+	</div>
+
+	<div id="entry-modal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h2 id="modal-date"></h2>
+			<div id="modal-entries"></div>
+		</div>
+	</div>
+</div>
+{% endblock %} {% block scripts %}
+<script src="{{ url_for('static', filename='js/timeline.js') }}"></script>
+{% endblock %}

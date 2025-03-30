@@ -1,0 +1,36 @@
+<!-- templates/journal.html -->
+{% extends "layout.html" %} {% block content %}
+<div class="journal-container">
+	<h1>Today's Journal</h1>
+	<p class="date">{{ now.strftime('%A, %B %d, %Y') }}</p>
+
+	<form action="{{ url_for('journal') }}" method="post" class="journal-form">
+		<div class="form-group">
+			<label for="entry">How was your day?</label>
+			<textarea
+				name="entry"
+				id="entry"
+				rows="10"
+				placeholder="Write about your day..."
+				required
+			></textarea>
+		</div>
+
+		<div class="form-group">
+			<label for="tags">Tags (comma separated)</label>
+			<input type="text" name="tags" id="tags" placeholder="work, family, health..." />
+		</div>
+
+		<button type="submit" class="btn primary">Save Entry</button>
+	</form>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+	// Set the current date
+	document.addEventListener('DOMContentLoaded', function () {
+		const now = new Date()
+		const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+		document.querySelector('.date').textContent = now.toLocaleDateString('en-US', options)
+	})
+</script>
+{% endblock %}

@@ -47,7 +47,7 @@ def analyze_sentiment(text):
     emotions_by_sentence = analyze_sentiment_using_bert(text)
     
     # Get overall emotion
-    all_emotions = [s["emotion"] for s in emotions_by_sentence if s["emotion"] != "neutral"]
+    all_emotions = [s["emotions"][0] for s in emotions_by_sentence if s["emotions"][0] != "neutral"]
     most_common = Counter(all_emotions).most_common(1)
     overall_emotion = most_common[0][0] if most_common else "neutral"
     

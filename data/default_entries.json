@@ -30,5 +30,24 @@
         }
       ]
     }
+  },
+  {
+    "id": "20250329192819",
+    "date": "2025-03-29",
+    "time": "19:28:19",
+    "text": "I got a raise!\r\n",
+    "tags": [],
+    "analysis": {
+      "overall_emotion": "excitement",
+      "sentences": [
+        {
+          "text": "I got a raise!",
+          "emotions": [
+            "excitement",
+            "joy"
+          ]
+        }
+      ]
+    }
   }
 ]
